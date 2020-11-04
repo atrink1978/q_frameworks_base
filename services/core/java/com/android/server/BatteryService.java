@@ -1095,7 +1095,7 @@ public final class BatteryService extends SystemService {
             if (level < mLowBatteryWarningLevel) {
                 if (status == BatteryManager.BATTERY_STATUS_CHARGING) {
                     // Solid red when battery is charging
-                    mBatteryLight.setColor(mBatteryLowARGB);
+                    mBatteryLight.turnOff();
                 } else {
                     // Flash red when battery is low and not charging
                     mBatteryLight.setFlashing(mBatteryLowARGB, Light.LIGHT_FLASH_TIMED,
@@ -1105,10 +1105,10 @@ public final class BatteryService extends SystemService {
                     || status == BatteryManager.BATTERY_STATUS_FULL) {
                 if (status == BatteryManager.BATTERY_STATUS_FULL || level >= 90) {
                     // Solid green when full or charging and nearly full
-                    mBatteryLight.setColor(mBatteryFullARGB);
+                    mBatteryLight.turnOff();
                 } else {
                     // Solid orange when charging and halfway full
-                    mBatteryLight.setColor(mBatteryMediumARGB);
+                    mBatteryLight.turnOff();
                 }
             } else {
                 // No lights if not charging and not low

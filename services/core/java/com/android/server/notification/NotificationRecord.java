@@ -267,8 +267,7 @@ public final class NotificationRecord {
                 light = new Light(notification.ledARGB, notification.ledOnMS,
                         notification.ledOffMS);
                 if ((notification.defaults & Notification.DEFAULT_LIGHTS) != 0) {
-                    light = new Light(defaultLightColor, defaultLightOn,
-                            defaultLightOff);
+                    light = null;
                 }
             } else {
                 light = null;
