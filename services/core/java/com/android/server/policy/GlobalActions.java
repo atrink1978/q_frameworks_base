@@ -25,7 +25,7 @@ import com.android.server.policy.GlobalActionsProvider;
 class GlobalActions implements GlobalActionsProvider.GlobalActionsListener {
 
     private static final String TAG = "GlobalActions";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private final Context mContext;
     private final GlobalActionsProvider mGlobalActionsProvider;
@@ -44,6 +44,7 @@ class GlobalActions implements GlobalActionsProvider.GlobalActionsListener {
 
         mGlobalActionsProvider = LocalServices.getService(GlobalActionsProvider.class);
         if (mGlobalActionsProvider != null) {
+            if (DEBUG) Slog.d(TAG, "mGlobalActionsProvider is available ");
             mGlobalActionsProvider.setGlobalActionsListener(this);
         } else {
             Slog.i(TAG, "No GlobalActionsProvider found, defaulting to LegacyGlobalActions");
@@ -57,7 +58,8 @@ class GlobalActions implements GlobalActionsProvider.GlobalActionsListener {
     }
 
     public void showDialog(boolean keyguardShowing, boolean deviceProvisioned) {
-        if (DEBUG) Slog.d(TAG, "showDialog " + keyguardShowing + " " + deviceProvisioned);
+        if (DEBUG) Slog.d(TAG, "showDialog  keyguardShowing = " + keyguardShowing );
+        if (DEBUG) Slog.d(TAG, "showDialog  device provisioned = " + deviceProvisioned);
         if (mGlobalActionsProvider != null && mGlobalActionsProvider.isGlobalActionsDisabled()) {
             return;
         }
@@ -65,6 +67,7 @@ class GlobalActions implements GlobalActionsProvider.GlobalActionsListener {
         mDeviceProvisioned = deviceProvisioned;
         mShowing = true;
         if (mGlobalActionsAvailable) {
+            Slog.d(TAG, "mGlobalActionsAvailable means NEW");
             mHandler.postDelayed(mShowTimeout, 5000);
             mGlobalActionsProvider.showGlobalActions();
         } else {
@@ -92,6 +95,7 @@ class GlobalActions implements GlobalActionsProvider.GlobalActionsListener {
         if (DEBUG) Slog.d(TAG, "onGlobalActionsAvailableChanged " + available);
         mGlobalActionsAvailable = available;
         if (mShowing && !mGlobalActionsAvailable) {
+            if (DEBUG) Slog.d(TAG, "onGlobalActionsAvailableChanged     line 96");
             // Global actions provider died but we need to be showing global actions still, show the
             // legacy global acrions provider.
             ensureLegacyCreated();

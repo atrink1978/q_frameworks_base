@@ -24,6 +24,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
+import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.systemui.R;
@@ -33,6 +34,8 @@ import com.android.systemui.R;
  */
 public class GlobalActionsColumnLayout extends GlobalActionsLayout {
     private boolean mLastSnap;
+    private static final String TAG = "GlobalActionsColumnLayout";
+
 
     public GlobalActionsColumnLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -82,17 +85,22 @@ public class GlobalActionsColumnLayout extends GlobalActionsLayout {
     @VisibleForTesting
     protected void snapToPowerButton() {
         int offset = getPowerButtonOffsetDistance();
+        Log.d(TAG, " offset PowerButtonOffsetDist " + offset);
+
         switch (getCurrentRotation()) {
             case (ROTATION_LANDSCAPE):
                 setPadding(offset, 0, 0, 0);
+                Log.d(TAG, " snapToPowerButton ROTATION_LANDSCAPE ");
                 setGravity(Gravity.LEFT | Gravity.TOP);
                 break;
             case (ROTATION_SEASCAPE):
                 setPadding(0, 0, offset, 0);
+                Log.d(TAG, " snapToPowerButton ROTATION_SEASCAPE");
                 setGravity(Gravity.RIGHT | Gravity.BOTTOM);
                 break;
             default:
                 setPadding(0, offset, 0, 0);
+                Log.d(TAG, " snapToPowerButton default");
                 setGravity(Gravity.TOP | Gravity.RIGHT);
                 break;
         }
@@ -105,15 +113,18 @@ public class GlobalActionsColumnLayout extends GlobalActionsLayout {
     protected void centerAlongEdge() {
         switch (getCurrentRotation()) {
             case (ROTATION_LANDSCAPE):
+                Log.d(TAG, " centerAlongEdge ROTATION_LANDSCAPE ");
                 setPadding(0, 0, 0, 0);
                 setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP);
                 break;
             case (ROTATION_SEASCAPE):
+                Log.d(TAG, " centerAlongEdge ROTATION_SEASCAPE");
                 setPadding(0, 0, 0, 0);
                 setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
                 break;
             default:
                 setPadding(0, 0, 0, 0);
+                Log.d(TAG, " centerAlongEdge default");
                 setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
                 break;
         }
@@ -124,6 +135,7 @@ public class GlobalActionsColumnLayout extends GlobalActionsLayout {
      */
     @VisibleForTesting
     protected int getPowerButtonOffsetDistance() {
+        Log.d(TAG, " offset PowerButtonOffsetDistance value "  );
         return Math.round(getContext().getResources().getDimension(
                 R.dimen.global_actions_top_padding));
     }
@@ -143,20 +155,31 @@ public class GlobalActionsColumnLayout extends GlobalActionsLayout {
         if (rotation == ROTATION_NONE) {
             dialogSize = wrapper.getMeasuredHeight();
             screenSize = getMeasuredHeight();
+            Log.d(TAG, " portrait screen height " + screenSize);
+            Log.d(TAG, " portrait dialog height " + dialogSize);
         } else {
             dialogSize = wrapper.getMeasuredWidth();
             screenSize = getMeasuredWidth();
+            Log.d(TAG, " landscape screen width " + screenSize);
+            Log.d(TAG, " landscape dialog width " + dialogSize);
         }
+// this parameter decides some how to make it centerAlongEdge
+        Log.d(TAG, " shouldSnapToPowerButton offsetSize" + offsetSize);
+        Log.d(TAG, " shouldSnapToPowerButton dialogSize" + dialogSize);
+        Log.d(TAG, " shouldSnapToPowerButton screenSize" + screenSize);
         return dialogSize + offsetSize < screenSize;
     }
 
     @VisibleForTesting
     protected void updateSnap() {
         boolean snap = shouldSnapToPowerButton();
+        Log.d(TAG, " updateSnap " + snap);
         if (snap != mLastSnap) {
             if (snap) {
+                Log.d(TAG, " Finally decided to snapToPowerButton ");
                 snapToPowerButton();
             } else {
+                Log.d(TAG, " Finally decided to centerAlongEdge ");
                 centerAlongEdge();
             }
         }
@@ -170,6 +193,7 @@ public class GlobalActionsColumnLayout extends GlobalActionsLayout {
 
     @VisibleForTesting
     protected float getAnimationDistance() {
+                Log.d(TAG, " GridItemHeight " + getGridItemSize());
         return getGridItemSize() / 2;
     }
 

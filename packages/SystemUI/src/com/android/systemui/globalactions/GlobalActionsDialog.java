@@ -155,7 +155,7 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
     private MyAdapter mAdapter;
 
     private boolean mKeyguardShowing = false;
-    private boolean mDeviceProvisioned = false;
+    private boolean mDeviceProvisioned;
     private ToggleAction.State mAirplaneState = ToggleAction.State.Off;
     private boolean mIsWaitingForEcmExit = false;
     private boolean mHasTelephony;
@@ -350,6 +350,7 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
         mHasLockdownButton = false;
         for (int i = 0; i < defaultActions.length; i++) {
             String actionKey = defaultActions[i];
+            Log.d(TAG, "defaultActions " + actionKey);
             if (addedKeys.contains(actionKey)) {
                 // If we already have added this, don't add it again.
                 continue;
@@ -1273,7 +1274,7 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
 
         public final void onPress() {
             if (mState.inTransition()) {
-                Log.w(TAG, "shouldn't be able to toggle when in transition");
+                Log.d(TAG, "shouldn't be able to toggle when in transition");
                 return;
             }
 
@@ -1651,14 +1652,18 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
                     || (shouldUsePanel() && rotation == RotationUtils.ROTATION_NONE);
             if (rotation == RotationUtils.ROTATION_SEASCAPE) {
                 if (useGridLayout) {
+                    Log.d(TAG, " useGridLayout is true with RotationUtils.ROTATION_SEASCAPE");
                     return com.android.systemui.R.layout.global_actions_grid_seascape;
                 } else {
+                    Log.d(TAG, " useGridLayout is false with RotationUtils.ROTATION_SEASCAPE");
                     return com.android.systemui.R.layout.global_actions_column_seascape;
                 }
             } else {
                 if (useGridLayout) {
+                    Log.d(TAG, " useGridLayout is true with not SEASCAPE");
                     return com.android.systemui.R.layout.global_actions_grid;
                 } else {
+                    Log.d(TAG, " USE ME useGridLayout is false with not SEASCAPE");
                     return com.android.systemui.R.layout.global_actions_column;
                 }
             }
