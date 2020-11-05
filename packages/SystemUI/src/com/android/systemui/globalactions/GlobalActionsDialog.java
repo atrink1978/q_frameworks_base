@@ -36,13 +36,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
 import android.database.ContentObserver;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.RectF;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -306,8 +299,8 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
             mSilentModeAction = new SilentModeTriStateAction(mAudioManager, mHandler);
         }
         mAirplaneModeOn = new ToggleAction(
-                com.android.systemui.R.drawable.ic_lock_airplane_mode_enabled,
-                com.android.systemui.R.drawable.ic_lock_airplane_mode_disabled,
+                R.drawable.ic_lock_airplane_mode,
+                R.drawable.ic_lock_airplane_mode_off,
                 R.string.global_actions_toggle_airplane_mode,
                 R.string.global_actions_airplane_mode_on_status,
                 R.string.global_actions_airplane_mode_off_status) {
@@ -357,7 +350,6 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
         mHasLockdownButton = false;
         for (int i = 0; i < defaultActions.length; i++) {
             String actionKey = defaultActions[i];
-            Log.d(TAG, "defaultActions " + actionKey);
             if (addedKeys.contains(actionKey)) {
                 // If we already have added this, don't add it again.
                 continue;
@@ -1166,7 +1158,7 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
             }
             if (mIcon != null) {
                 icon.setImageDrawable(mIcon);
-                icon.setScaleType(ScaleType.CENTER);
+                icon.setScaleType(ScaleType.CENTER_CROP);
             } else if (mIconResId != 0) {
                 icon.setImageDrawable(context.getDrawable(mIconResId));
             }
@@ -1248,27 +1240,32 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
                 LayoutInflater inflater) {
             willCreate();
 
-            View v = inflater.inflate(com.android.systemui.R
-                    .layout.global_actions_grid_item, parent, false);
-
+            View v = inflater.inflate(R
+                    .layout.global_actions_item, parent, false);
 
             ImageView icon = (ImageView) v.findViewById(R.id.icon);
             TextView messageView = (TextView) v.findViewById(R.id.message);
+            TextView statusView = (TextView) v.findViewById(R.id.status);
             final boolean enabled = isEnabled();
-            boolean on = ((mState == State.On) || (mState == State.TurningOn));
 
             if (messageView != null) {
-                messageView.setText(on ? mEnabledStatusMessageResId : mDisabledStatusMessageResId);
+                messageView.setText(mMessageResId);
                 messageView.setEnabled(enabled);
                 messageView.setSelected(true); // necessary for marquee to work
             }
 
+            boolean on = ((mState == State.On) || (mState == State.TurningOn));
             if (icon != null) {
                 icon.setImageDrawable(context.getDrawable(
                         (on ? mEnabledIconResId : mDisabledIconResid)));
                 icon.setEnabled(enabled);
             }
 
+            if (statusView != null) {
+                statusView.setText(on ? mEnabledStatusMessageResId : mDisabledStatusMessageResId);
+                statusView.setVisibility(View.VISIBLE);
+                statusView.setEnabled(enabled);
+            }
             v.setEnabled(enabled);
 
             return v;
@@ -1276,7 +1273,7 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
 
         public final void onPress() {
             if (mState.inTransition()) {
-                Log.d(TAG, "shouldn't be able to toggle when in transition");
+                Log.w(TAG, "shouldn't be able to toggle when in transition");
                 return;
             }
 
@@ -1479,20 +1476,15 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
         }
     };
 
-    private ToggleAction.State getUpdatedAirplaneToggleState() {
-        return Settings.Global.getInt(mContext.getContentResolver(),
-                Settings.Global.AIRPLANE_MODE_ON, 0) == 1
-                    ? ToggleAction.State.On
-                    : ToggleAction.State.Off;
-    }
-
-
-
     private void onAirplaneModeChanged() {
         // Let the service state callbacks handle the state.
         if (mHasTelephony) return;
 
-        mAirplaneState = getUpdatedAirplaneToggleState();
+        boolean airplaneModeOn = Settings.Global.getInt(
+                mContext.getContentResolver(),
+                Settings.Global.AIRPLANE_MODE_ON,
+                0) == 1;
+        mAirplaneState = airplaneModeOn ? ToggleAction.State.On : ToggleAction.State.Off;
         mAirplaneModeOn.updateState(mAirplaneState);
     }
 
@@ -1659,18 +1651,14 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
                     || (shouldUsePanel() && rotation == RotationUtils.ROTATION_NONE);
             if (rotation == RotationUtils.ROTATION_SEASCAPE) {
                 if (useGridLayout) {
-                    Log.d(TAG, " useGridLayout is true with RotationUtils.ROTATION_SEASCAPE");
                     return com.android.systemui.R.layout.global_actions_grid_seascape;
                 } else {
-                    Log.d(TAG, " useGridLayout is false with RotationUtils.ROTATION_SEASCAPE");
                     return com.android.systemui.R.layout.global_actions_column_seascape;
                 }
             } else {
                 if (useGridLayout) {
-                    Log.d(TAG, " useGridLayout is true with not SEASCAPE");
                     return com.android.systemui.R.layout.global_actions_grid;
                 } else {
-                    Log.d(TAG, " USE ME useGridLayout is false with not SEASCAPE");
                     return com.android.systemui.R.layout.global_actions_column;
                 }
             }
