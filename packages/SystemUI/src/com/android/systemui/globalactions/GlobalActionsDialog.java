@@ -1664,6 +1664,7 @@ public class GlobalActionsDialog implements DialogInterface.OnDismissListener,
                     return com.android.systemui.R.layout.global_actions_column_seascape;
                 }
             } else {
+                if (useGridLayout) {
                     return com.android.systemui.R.layout.global_actions_grid;
                 } else {
                     return com.android.systemui.R.layout.global_actions_column;
